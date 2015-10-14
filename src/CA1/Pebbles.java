@@ -23,7 +23,7 @@ public class Pebbles {
 	}
 	
 	
-	/*
+	/**
 	 * Set the weight of the Pebbles object
 	 * 
 	 * @param weight the weight of the pebble
@@ -31,13 +31,13 @@ public class Pebbles {
 	 * @return no return
 	 * 
 	 */
-	public void setWeight (int weight) {
+	public void setWeight (int weight) throws IllegalWeightException{
 		
 		this.weight = weight;
 		
 	}
 	
-	/*
+	/**
 	 * Get the weight of the Pebbles object
 	 * 
 	 * @return the weight of the pebbles object
