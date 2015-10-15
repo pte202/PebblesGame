@@ -12,6 +12,19 @@ public class PebbleGame {
 	private ArrayList<Pebbles> pebblesBlack2;
 	private ArrayList<Pebbles> pebblesBlack3;
 	
+	private void Test(){
+		for(int i =0; i<100;i++)
+		{
+			Pebbles pebble = new Pebbles(i);
+			pebblesBlack1.add(pebble);
+			pebblesBlack2.add(pebble);
+			pebblesBlack3.add(pebble);
+			System.out.println("Pebbles1"+pebblesBlack1.get(i).getWeight()
+					+"Pebbles2"+pebblesBlack2.get(i).getWeight()
+					+"Pebbles3"+pebblesBlack3.get(i).getWeight());
+		}
+	}
+	
 	private ArrayList<Pebbles> pebblesWhite1;
 	private ArrayList<Pebbles> pebblesWhite2;
 	private ArrayList<Pebbles> pebblesWhite3;
@@ -23,17 +36,22 @@ public class PebbleGame {
 	static class Main {
 	
 		public static void main (String [] args) {
-					
-					int bag;
-					
-					// get a random bag
-					bag = staticMethods.randInt(1, 3);
-					
-					Pebbles test = new Pebbles();
-					PebbleGame pebbleGame = new PebbleGame();
-					Players p1 = pebbleGame.new Players();
-					
-					
+			
+			int bag;
+			boolean status;
+			Pebbles test = new Pebbles();
+			PebbleGame pebbleGame = new PebbleGame();
+			Players p1 = pebbleGame.new Players();
+			
+			
+			bag = p1.choseBag();
+			p1.initialDrawPebbles(bag);
+			status = p1.isWinning();
+			
+			while (status == false) {
+				p1.drawPebbles(bag);
+			}
+			System.out.println("You won mate!!!");		
 		}
 		
 	}
@@ -86,6 +104,29 @@ public class PebbleGame {
 			
 		}
 		
+		/**
+		 * Chose a bag to draw pebbles from on random
+		 * @return chosen bag
+		 */
+		
+		public int choseBag() {
+			
+			// generate random number to represent bag
+			int bag = staticMethods.randInt(1,3);
+			
+			return bag;				
+		}
+		
+		/**
+		 * 
+		 */
+		public void initialDrawPebbles(int bag) {
+			
+			for (int i=1; i <= 10; i++) {
+				
+				drawPebbles(bag);				
+			}			
+		}
 		
 		/**
 		 * The process of drawing pebbles from a
@@ -94,9 +135,7 @@ public class PebbleGame {
 		public void drawPebbles(int bag) {
 		
 			int pebbleRand;
-			
-			
-			
+			  
 			switch(bag) {
 			
 			case 1: 				
@@ -141,24 +180,31 @@ public class PebbleGame {
 				
 				break;
 		
+			}		
+	
+		}
+		
+		public boolean isWinning() {
+			
+			int sumOfPebbles = 0;
+			
+			for (int i=0; i<pebblesInHand.size(); i++) {
+				
+				sumOfPebbles +=pebblesInHand.get(i).getWeight();
+				
 			}
 			
+			if (sumOfPebbles == 100) {
+				
+				playerStatus = true;
+				
+				return playerStatus;
+			}
 			
-	
-		}
-		
-		
-		
-		
+			return playerStatus;
 			
-			
-			
-			
-			
-		}
-	
-		
-		
-	}
+		}	
+	}		
+}
 
 
