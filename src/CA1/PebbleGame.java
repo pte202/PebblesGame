@@ -8,35 +8,38 @@ public class PebbleGame {
 	private int numOfWhiteBags = 3;
 	private int numOfBlackBags = 3;
 	
-	private ArrayList<Pebbles> pebblesBlack1;
-	private ArrayList<Pebbles> pebblesBlack2;
-	private ArrayList<Pebbles> pebblesBlack3;
+	private static ArrayList<Pebbles> pebblesBlack1 = new ArrayList<Pebbles>();
+	private static ArrayList<Pebbles> pebblesBlack2 = new ArrayList<Pebbles>();
+	private static ArrayList<Pebbles> pebblesBlack3 = new ArrayList<Pebbles>();
 	
-	private void Test(){
-		for(int i =0; i<100;i++)
-		{
-			Pebbles pebble = new Pebbles(i);
-			pebblesBlack1.add(pebble);
-			pebblesBlack2.add(pebble);
-			pebblesBlack3.add(pebble);
-			System.out.println("Pebbles1"+pebblesBlack1.get(i).getWeight()
-					+"Pebbles2"+pebblesBlack2.get(i).getWeight()
-					+"Pebbles3"+pebblesBlack3.get(i).getWeight());
-		}
-	}
 	
-	private ArrayList<Pebbles> pebblesWhite1;
-	private ArrayList<Pebbles> pebblesWhite2;
-	private ArrayList<Pebbles> pebblesWhite3;
+	
+	private ArrayList<Pebbles> pebblesWhite1 = new ArrayList<Pebbles>();;
+	private ArrayList<Pebbles> pebblesWhite2 = new ArrayList<Pebbles>();;
+	private ArrayList<Pebbles> pebblesWhite3 = new ArrayList<Pebbles>();;
 	
 	PebbleGame() {
 		
 	}
 	
 	static class Main {
+		private static void Test(){
+			for(int i =0; i<100;i++)
+			{
+				
+				pebblesBlack1.add(new Pebbles(i));
+				pebblesBlack2.add(new Pebbles(i));
+				pebblesBlack3.add(new Pebbles(i));
+				System.out.println("Pebbles1: "+pebblesBlack1.get(i).getWeight()
+						+"Pebbles2: "+pebblesBlack2.get(i).getWeight()
+						+"Pebbles3: "+pebblesBlack3.get(i).getWeight());
+			
+				
+			}
+		}
 	
 		public static void main (String [] args) {
-			
+			Test();
 			int bag;
 			boolean status;
 			Pebbles test = new Pebbles();
@@ -47,9 +50,23 @@ public class PebbleGame {
 			bag = p1.choseBag();
 			p1.initialDrawPebbles(bag);
 			status = p1.isWinning();
+			System.out.println(p1.pebblesInHand.toString());
 			
 			while (status == false) {
+				if (pebblesBlack1.size()== 0){
+					p1.transferPebbles(1);
+				}
+				if (pebblesBlack2.size()== 0){
+					p1.transferPebbles(2);
+				}
+				if (pebblesBlack3.size()== 0){
+					p1.transferPebbles(3);
+				}
+
+				p1.discardPebbles(bag);
 				p1.drawPebbles(bag);
+				p1.isWinning();
+				
 			}
 			System.out.println("You won mate!!!");		
 		}
@@ -94,7 +111,7 @@ public class PebbleGame {
 	class Players {
 		
 		// pebbles that the players holds
-		private ArrayList<Pebbles> pebblesInHand;
+		private ArrayList<Pebbles> pebblesInHand = new ArrayList<Pebbles>();
 		
 		// status of the player; when it turns 
 		// to true this means he won the game
@@ -141,11 +158,14 @@ public class PebbleGame {
 			case 1: 				
 				
 				// get a random pebble
-				pebbleRand = staticMethods.randInt(0, pebblesBlack1.size());
-				
+				pebbleRand = staticMethods.randInt(0, pebblesBlack1.size()-1);
+//				System.out.println(pebblesBlack1.size());
+//				System.out.println(pebblesInHand.size());
+
 				// add the chosen pebble to our hand
 				pebblesInHand.add(pebblesBlack1.get(pebbleRand));
-				
+//				System.out.println(pebblesInHand.toString());
+
 				// remove the chosen pebble
 				pebblesBlack1.remove(pebbleRand);
 						
@@ -153,13 +173,16 @@ public class PebbleGame {
 				break;
 				
 			case 2: 
-
-				// get a random pebble
-				pebbleRand = staticMethods.randInt(0, pebblesBlack2.size());
 				
+				// get a random pebble
+				pebbleRand = staticMethods.randInt(0, pebblesBlack2.size()-1);
+//				System.out.println(pebblesBlack2.size());
+//				System.out.println(pebblesInHand.size());
+
 				// add the chosen pebble to our hand
 				pebblesInHand.add(pebblesBlack2.get(pebbleRand));
-				
+//				System.out.println(pebblesInHand.toString());
+
 				// remove the chosen pebble
 				pebblesBlack2.remove(pebbleRand);
 						
@@ -169,11 +192,13 @@ public class PebbleGame {
 			case 3: 
 
 				// get a random pebble
-				pebbleRand = staticMethods.randInt(0, pebblesBlack3.size());
-				
+				pebbleRand = staticMethods.randInt(0, pebblesBlack3.size()-1);
+//				System.out.println(pebblesBlack3.size());
+//				System.out.println(pebblesInHand.size());
+
 				// add the chosen pebble to our hand
 				pebblesInHand.add(pebblesBlack3.get(pebbleRand));
-				
+//				System.out.println(pebblesInHand.toString());
 				// remove the chosen pebble
 				pebblesBlack3.remove(pebbleRand);
 						
@@ -182,6 +207,93 @@ public class PebbleGame {
 		
 			}		
 	
+		}
+		public void discardPebbles(int bag){
+			
+			int pebbleRand;
+			switch(bag) {
+			
+			case 1: 				
+				// get a random pebble
+				pebbleRand = staticMethods.randInt(0, pebblesInHand.size()-1);
+//				System.out.println(pebblesInHand.size());
+
+				
+				// add the chosen pebble to the corresponding white bag
+				pebblesWhite1.add(pebblesInHand.get(pebbleRand));
+						
+				// remove the chosen pebble
+				pebblesInHand.remove(pebbleRand);
+				
+				break;
+				
+			case 2: 
+
+				// get a random pebble
+				pebbleRand = staticMethods.randInt(0, pebblesInHand.size()-1);
+//				System.out.println(pebblesInHand.size());
+
+				
+				// add the chosen pebble to the corresponding white bag
+				pebblesWhite2.add(pebblesInHand.get(pebbleRand));
+
+				// remove the chosen pebble
+				pebblesInHand.remove(pebbleRand);
+						
+				
+				break;
+				
+			case 3: 
+
+				// get a random pebble
+				pebbleRand = staticMethods.randInt(0, pebblesInHand.size()-1);
+//				System.out.println(pebblesInHand.size());
+
+				
+				// add the chosen pebble to the corresponding white bag
+				pebblesWhite3.add(pebblesInHand.get(pebbleRand));
+ 
+				// remove the chosen pebble
+				pebblesInHand.remove(pebbleRand);
+						
+				
+				break;
+		
+			}		
+		
+			
+			
+		}
+		public void transferPebbles(int bag){
+//			in each case transfers all the pebbles from 
+//			the white bag into the black bag
+			switch(bag) {
+			
+			case 1:
+				
+				for(int i = 0; i < pebblesWhite1.size(); i++){
+					pebblesBlack1.add(pebblesWhite1.get(i));
+				}
+				
+				break;
+				
+			case 2: 
+
+				for(int i = 0; i < pebblesWhite1.size(); i++){
+					pebblesBlack1.add(pebblesWhite1.get(i));
+				}
+				
+				break;
+				
+			case 3: 
+
+				for(int i = 0; i < pebblesWhite1.size(); i++){
+					pebblesBlack1.add(pebblesWhite1.get(i));
+				}
+				
+				break;
+		
+			}		
 		}
 		
 		public boolean isWinning() {
