@@ -3,6 +3,8 @@ package CA1;
 import java.util.ArrayList;
 import java.util.Random;
 
+import CA1.FileIO.ReadCVS;
+
 public class PebbleGame {
 	
 	private int numOfWhiteBags = 3;
@@ -27,21 +29,31 @@ public class PebbleGame {
 			for(int i =0; i<100;i++)
 			{
 				
-				pebblesBlack1.add(new Pebbles(i));
+//				pebblesBlack1.add(new Pebbles(i));
 				pebblesBlack2.add(new Pebbles(i));
 				pebblesBlack3.add(new Pebbles(i));
-				System.out.println("Pebbles1: "+pebblesBlack1.get(i).getWeight()
-						+"Pebbles2: "+pebblesBlack2.get(i).getWeight()
-						+"Pebbles3: "+pebblesBlack3.get(i).getWeight());
+//				System.out.println("Pebbles1: "+pebblesBlack1.get(i).getWeight()
+//						+"Pebbles2: "+pebblesBlack2.get(i).getWeight()
+//						+"Pebbles3: "+pebblesBlack3.get(i).getWeight());
 			
 				
 			}
 		}
+		private static void TestIO(){
+			ReadCVS file = new ReadCVS();
+			String myFile = file.getFile();
+			file.readFile(myFile);
+			System.out.println(file.readFile(myFile).toString());
+			
+		}
 	
 		public static void main (String [] args) {
 			Test();
+			TestIO();
+			
+
 			int bag;
-			boolean status;
+			boolean playerCountValidation ;
 			Pebbles test = new Pebbles();
 			PebbleGame pebbleGame = new PebbleGame();
 			Players p1 = pebbleGame.new Players();
@@ -49,10 +61,10 @@ public class PebbleGame {
 			
 			bag = p1.choseBag();
 			p1.initialDrawPebbles(bag);
-			status = p1.isWinning();
+			//status = p1.isWinning();
 			System.out.println(p1.pebblesInHand.toString());
 			
-			while (status == false) {
+			while (!p1.isWinning()) {
 				if (pebblesBlack1.size()== 0){
 					p1.transferPebbles(1);
 				}
@@ -65,15 +77,19 @@ public class PebbleGame {
 
 				p1.discardPebbles(bag);
 				p1.drawPebbles(bag);
-				p1.isWinning();
+//				p1.isWinning();
 				
 			}
-			System.out.println("You won mate!!!");		
+			ArrayList<Integer> weightArray = new ArrayList<Integer>();
+			for (Pebbles n: p1.pebblesInHand){
+				weightArray.add(n.getWeight());
+			}
+			System.out.println("You won mate!!!\n Your hand is: "+ weightArray.toString());		
 		}
 		
 	}
 	
-	static class staticMethods {
+	static class StaticMethods {
 		
 		/**
 		 * Returns a pseudo-random number between min and max, inclusive.
@@ -102,6 +118,7 @@ public class PebbleGame {
 		    return randomNum;
 		}
 		
+		
 	}
 	
 	
@@ -129,7 +146,7 @@ public class PebbleGame {
 		public int choseBag() {
 			
 			// generate random number to represent bag
-			int bag = staticMethods.randInt(1,3);
+			int bag = StaticMethods.randInt(1,3);
 			
 			return bag;				
 		}
@@ -149,7 +166,7 @@ public class PebbleGame {
 		 * The process of drawing pebbles from a
 		 * black bag
 		 */
-		public void drawPebbles(int bag) {
+		public synchronized void drawPebbles(int bag) {
 		
 			int pebbleRand;
 			  
@@ -158,7 +175,7 @@ public class PebbleGame {
 			case 1: 				
 				
 				// get a random pebble
-				pebbleRand = staticMethods.randInt(0, pebblesBlack1.size()-1);
+				pebbleRand = StaticMethods.randInt(0, pebblesBlack1.size()-1);
 //				System.out.println(pebblesBlack1.size());
 //				System.out.println(pebblesInHand.size());
 
@@ -175,7 +192,7 @@ public class PebbleGame {
 			case 2: 
 				
 				// get a random pebble
-				pebbleRand = staticMethods.randInt(0, pebblesBlack2.size()-1);
+				pebbleRand = StaticMethods.randInt(0, pebblesBlack2.size()-1);
 //				System.out.println(pebblesBlack2.size());
 //				System.out.println(pebblesInHand.size());
 
@@ -192,7 +209,7 @@ public class PebbleGame {
 			case 3: 
 
 				// get a random pebble
-				pebbleRand = staticMethods.randInt(0, pebblesBlack3.size()-1);
+				pebbleRand = StaticMethods.randInt(0, pebblesBlack3.size()-1);
 //				System.out.println(pebblesBlack3.size());
 //				System.out.println(pebblesInHand.size());
 
@@ -208,14 +225,14 @@ public class PebbleGame {
 			}		
 	
 		}
-		public void discardPebbles(int bag){
+		public synchronized void discardPebbles(int bag){
 			
 			int pebbleRand;
 			switch(bag) {
 			
 			case 1: 				
 				// get a random pebble
-				pebbleRand = staticMethods.randInt(0, pebblesInHand.size()-1);
+				pebbleRand = StaticMethods.randInt(0, pebblesInHand.size()-1);
 //				System.out.println(pebblesInHand.size());
 
 				
@@ -230,7 +247,7 @@ public class PebbleGame {
 			case 2: 
 
 				// get a random pebble
-				pebbleRand = staticMethods.randInt(0, pebblesInHand.size()-1);
+				pebbleRand = StaticMethods.randInt(0, pebblesInHand.size()-1);
 //				System.out.println(pebblesInHand.size());
 
 				
@@ -246,7 +263,7 @@ public class PebbleGame {
 			case 3: 
 
 				// get a random pebble
-				pebbleRand = staticMethods.randInt(0, pebblesInHand.size()-1);
+				pebbleRand = StaticMethods.randInt(0, pebblesInHand.size()-1);
 //				System.out.println(pebblesInHand.size());
 
 				
@@ -264,7 +281,7 @@ public class PebbleGame {
 			
 			
 		}
-		public void transferPebbles(int bag){
+		public synchronized void transferPebbles(int bag){
 //			in each case transfers all the pebbles from 
 //			the white bag into the black bag
 			switch(bag) {
