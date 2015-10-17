@@ -1,84 +1,68 @@
 package CA1;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+ 
+public class FileIO
+{
+	/**
+	 * Receives user input 
+	 * and returns the input directory
+	 * @pre directory is valid
+	 * 
+	 * @return String fileDir
+	 */
+    public String getFile() {
+		
+		Scanner keyboardInput = new Scanner(System.in);
+		//System.out.println("Enter the file path");
+		//String fileDir = keyboardInput.nextLine();
+		String test = "C:/Users/Niko216/Desktop/example_file_2.csv";
+		return test;
 
-public class FileIO {
-
-	public static class ReadCVS {
-
-//		  public static void main(String[] args) {
-//
-//			ReadCVS file = new ReadCVS();
-//			String myFile = file.getFile();
-//			file.readFile(myFile);
-//			System.out.println(file.readFile(myFile));
-//
-//		  }
-
-		public String getFile() {
-			
-//			Scanner keyboardInput = new Scanner(System.in);
-//			System.out.println("Enter the file path");
-//			String input = keyboardInput.nextLine();
-			
-//			return input;
-			String test = "C:/Users/Niko216/Desktop/example_file_2.csv";
-			return test;
-		}
-			
-		  public ArrayList<String> readFile(String input) {
-			  
-			BufferedReader fileContents = null;
-			String line = "";
-			String cvsSplitBy = ",";
-			ArrayList<String> weights = new ArrayList<String>();
-
-			try {
-
-				fileContents = new BufferedReader(new FileReader(input));
-				line = fileContents.readLine();
-				String[] temp = line.split(cvsSplitBy);
-				while ((line = fileContents.readLine()) != null) {
-
-			        // use comma as separator
-				String[] country = line.split(cvsSplitBy);
-				System.out.println(country.toString());}
-
-
-				for(String i: temp ){
-//					use comma as separator	
-					weights.add(i);
-//					System.out.println(temp);
-					System.out.println(i);
-
-				}
-				
-
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (fileContents != null) {
-					try {
-						fileContents.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			for (String i:  weights){
-				System.out.println("item "+i);
-			}
-			return weights;
-		  }
-		}
 	}
+    /**Receives a file and returns an ArrayList
+     * filled with the contents of the file.
+     * @pre The file has to exist. 
+     * @pre All values should be positive.
+     * @post
+     *	
+     * 
+     * @throws FileNotFoundException 
+     * @param String fileDir    
+     * @return ArrayList<Integer> bagContents
+     * @throws IllegalWeightException 
+     */
+    public ArrayList<Integer> readFileAndFill(String fileDir) throws FileNotFoundException, IllegalWeightException {
+    	ArrayList<Integer> bagContents = new ArrayList<Integer>();
+    	//Get scanner instance
+        Scanner scanner = new Scanner(new File(fileDir));
+         
+        //Set the delimiter used in file
+        scanner.useDelimiter(",");
+         
+        //Get all tokens and store them in some data structure
+        //I am just printing them
+        while (scanner.hasNext())
+        {
+        	int value = Integer.parseInt(scanner.next());
+        	if(value>=0) {
+				bagContents.add(value);
+			} else {
+				scanner.close();
+				throw new IllegalWeightException();
+			}
+        }
+         
+        //Do not forget to close the scanner 
+        scanner.close();
+        
+        return bagContents;
+    }
+    
 
+}
 
 

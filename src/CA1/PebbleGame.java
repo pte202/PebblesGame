@@ -1,9 +1,10 @@
 package CA1;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import CA1.FileIO.ReadCVS;
+
 
 public class PebbleGame {
 	
@@ -39,15 +40,21 @@ public class PebbleGame {
 				
 			}
 		}
-		private static void TestIO(){
-			ReadCVS file = new ReadCVS();
-			String myFile = file.getFile();
-			file.readFile(myFile);
-			System.out.println(file.readFile(myFile).toString());
+		private static void TestIO() throws FileNotFoundException, IllegalWeightException{
+			ArrayList<Integer> bag = new ArrayList<Integer>();
+			FileIO file = new FileIO();
+			String fileDir = file.getFile();
+			bag=file.readFileAndFill(fileDir);
+			for (Integer element: bag){
+				pebblesBlack1.add(new Pebbles(element));
+			}
+			for (Pebbles pebble: pebblesBlack1){
+				System.out.println(pebble.getWeight());
+			}
 			
 		}
 	
-		public static void main (String [] args) {
+		public static void main (String [] args) throws FileNotFoundException, IllegalWeightException {
 			Test();
 			TestIO();
 			
@@ -59,25 +66,27 @@ public class PebbleGame {
 			Players p1 = pebbleGame.new Players();
 			
 			
-			bag = p1.choseBag();
+			bag = p1.chooseBag();
 			p1.initialDrawPebbles(bag);
 			//status = p1.isWinning();
 			System.out.println(p1.pebblesInHand.toString());
 			
 			while (!p1.isWinning()) {
-				if (pebblesBlack1.size()== 0){
+				bag = p1.chooseBag();
+				if (pebblesBlack1.size()== 1){
 					p1.transferPebbles(1);
+					System.out.println("transfer1");
 				}
-				if (pebblesBlack2.size()== 0){
+				if (pebblesBlack2.size()== 1){
 					p1.transferPebbles(2);
+					System.out.println("transfer2");
 				}
-				if (pebblesBlack3.size()== 0){
+				if (pebblesBlack3.size()== 1){
 					p1.transferPebbles(3);
+					System.out.println("transfer3");
 				}
-
 				p1.discardPebbles(bag);
 				p1.drawPebbles(bag);
-//				p1.isWinning();
 				
 			}
 			ArrayList<Integer> weightArray = new ArrayList<Integer>();
@@ -139,11 +148,11 @@ public class PebbleGame {
 		}
 		
 		/**
-		 * Chose a bag to draw pebbles from on random
+		 * Choose a bag to draw pebbles from on random
 		 * @return chosen bag
 		 */
 		
-		public int choseBag() {
+		public int chooseBag() {
 			
 			// generate random number to represent bag
 			int bag = StaticMethods.randInt(1,3);
@@ -290,22 +299,27 @@ public class PebbleGame {
 				
 				for(int i = 0; i < pebblesWhite1.size(); i++){
 					pebblesBlack1.add(pebblesWhite1.get(i));
+					pebblesWhite1.remove(i);
 				}
 				
 				break;
 				
 			case 2: 
 
-				for(int i = 0; i < pebblesWhite1.size(); i++){
-					pebblesBlack1.add(pebblesWhite1.get(i));
+				for(int i = 0; i < pebblesWhite2.size(); i++){
+					pebblesBlack2.add(pebblesWhite2.get(i));
+					pebblesWhite2.remove(i);
+
 				}
 				
 				break;
 				
 			case 3: 
 
-				for(int i = 0; i < pebblesWhite1.size(); i++){
-					pebblesBlack1.add(pebblesWhite1.get(i));
+				for(int i = 0; i < pebblesWhite3.size(); i++){
+					pebblesBlack3.add(pebblesWhite3.get(i));
+					pebblesWhite3.remove(i);
+
 				}
 				
 				break;
