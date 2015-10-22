@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
-
+/**
+ * 
+ *
+ */
 public class PebbleGame {
 	
 	private int numOfWhiteBags = 3;
@@ -24,44 +27,62 @@ public class PebbleGame {
 	PebbleGame() {
 		
 	}
-	
+	/**
+	 * 
+	 *
+	 */
 	static class Main {
 		private static void Test(){
 			for(int i =0; i<100;i++)
 			{
 				
-//				pebblesBlack1.add(new Pebbles(i));
+				pebblesBlack1.add(new Pebbles(i));
 				pebblesBlack2.add(new Pebbles(i));
 				pebblesBlack3.add(new Pebbles(i));
-//				System.out.println("Pebbles1: "+pebblesBlack1.get(i).getWeight()
-//						+"Pebbles2: "+pebblesBlack2.get(i).getWeight()
-//						+"Pebbles3: "+pebblesBlack3.get(i).getWeight());
+				System.out.println("Pebbles1: "+pebblesBlack1.get(i).getWeight()
+						+"Pebbles2: "+pebblesBlack2.get(i).getWeight()
+						+"Pebbles3: "+pebblesBlack3.get(i).getWeight());
 			
 				
 			}
 		}
 		private static void TestIO() throws FileNotFoundException, IllegalWeightException{
-			ArrayList<Integer> bag = new ArrayList<Integer>();
+			ArrayList<Integer> bag1 = new ArrayList<Integer>();
+			ArrayList<Integer> bag2 = new ArrayList<Integer>();
+			ArrayList<Integer> bag3 = new ArrayList<Integer>();
 			FileIO file = new FileIO();
-			String fileDir = file.getFile();
-			bag=file.readFileAndFill(fileDir);
-			for (Integer element: bag){
+			String fileDir1 = file.getFile("C:/Users/Niko216/Desktop/example_file_1.csv");
+			String fileDir2 = file.getFile("C:/Users/Niko216/Desktop/example_file_2.csv");
+			String fileDir3 = file.getFile("C:/Users/Niko216/Desktop/example_file_3.csv");
+			bag1=file.readFileAndFill(fileDir1);
+			bag2=file.readFileAndFill(fileDir2);
+			bag3=file.readFileAndFill(fileDir3);
+			for (Integer element: bag1){
 				pebblesBlack1.add(new Pebbles(element));
 			}
-			for (Pebbles pebble: pebblesBlack1){
-//				System.out.println(pebble.getWeight());
+			for (Integer element: bag2){
+				pebblesBlack2.add(new Pebbles(element));
+			}
+			for (Integer element: bag3){
+				pebblesBlack3.add(new Pebbles(element));
 			}
 			
+			
 		}
-	
+		/**
+		 * 
+		 * @param args
+		 * @throws FileNotFoundException
+		 * @throws IllegalWeightException
+		 */
 		public static void main (String [] args) throws FileNotFoundException, IllegalWeightException {
-			Test();
+//			Test();
 			TestIO();
 			PebbleGame pebbleGame = new PebbleGame();
 			Player player = pebbleGame.new Player();
 			PlayerActions playerAction = pebbleGame.new PlayerActions();
 			new Thread(player).start();
-			//new Thread(player).start();
+			new Thread(player).start();
 //			int bag;
 //			boolean playerCountValidation ;
 //			Pebbles test = new Pebbles();
@@ -99,44 +120,53 @@ public class PebbleGame {
 //			System.out.println("You won mate!!!\n Your hand is: "+ weightArray.toString());		
 		}
 	}
+	/**
+	 *
+	 */
 	class Player implements Runnable{
 		@Override
 		public void run() {
 			
 			int bag;
 			PebbleGame pebbleGame = new PebbleGame();
-			PlayerActions player = pebbleGame.new PlayerActions();
+			PlayerActions playerActions = pebbleGame.new PlayerActions();
 			
-			bag = player.chooseBag();
-			player.initialDrawPebbles(bag);
+			bag = playerActions.chooseBag();
+			playerActions.initialDrawPebbles(bag);
 			//status = p1.isWinning();
 						
-			while (!player.isWinning()) {
-				bag = player.chooseBag();
+			while (!playerActions.isWinning()) {
+				synchronized(this){
+				bag = playerActions.chooseBag();
 				if (pebblesBlack1.size()== 1){
-					player.transferPebbles(1);
+					playerActions.transferPebbles(1);
 //					System.out.println("transfer1");
 				}
 				if (pebblesBlack2.size()== 1){
-					player.transferPebbles(2);
+					playerActions.transferPebbles(2);
 //					System.out.println("transfer2");
 				}
 				if (pebblesBlack3.size()== 1){
-					player.transferPebbles(3);
+					playerActions.transferPebbles(3);
 //					System.out.println("transfer3");
 				}
-				player.discardPebbles(bag);
-				player.drawPebbles(bag);
+				playerActions.discardPebbles(bag);
+				playerActions.drawPebbles(bag);
+				}
 				
 			}
 			ArrayList<Integer> weightArray = new ArrayList<Integer>();
-			for (Pebbles n: player.pebblesInHand){
+			for (Pebbles n: playerActions.pebblesInHand){
 				weightArray.add(n.getWeight());
 			}
-			System.out.println("You won mate!!!\n Your hand is: "+ weightArray.toString());	
+			System.out.println( Thread.currentThread().getName()+"  has won!!!\n The winning hand is: "+ weightArray.toString());	
 		}
 	}
-	
+	/**
+	 * 
+	 * 
+	 *
+	 */
 	static class StaticMethods {
 		
 		/**
@@ -179,7 +209,7 @@ public class PebbleGame {
 		private ArrayList<Pebbles> pebblesInHand = new ArrayList<Pebbles>();
 		
 		// status of the player; when it turns 
-		// to true this means he won the game
+		// to true this means he has won the game
 		private boolean playerStatus = false;
 		
 		public PlayerActions () {
@@ -200,9 +230,10 @@ public class PebbleGame {
 		}
 		
 		/**
-		 * 
+		 * Initial draw of the  pebbles
+		 * (each player draws 10 random pebbles from a randomly chosen bag)
 		 */
-		public void initialDrawPebbles(int bag) {
+		public synchronized void initialDrawPebbles(int bag) {
 			
 			for (int i=1; i <= 10; i++) {
 				
@@ -213,6 +244,7 @@ public class PebbleGame {
 		/**
 		 * The process of drawing pebbles from a
 		 * black bag
+		 * @param bag
 		 */
 		public synchronized void drawPebbles(int bag) {
 		
@@ -273,6 +305,11 @@ public class PebbleGame {
 			}		
 	
 		}
+		/**
+		 * The process of discarding a pebble from 
+		 * the player's current hand into the white bag
+		 * @param bag
+		 */
 		public synchronized void discardPebbles(int bag){
 			
 			int pebbleRand;
@@ -329,6 +366,11 @@ public class PebbleGame {
 			
 			
 		}
+		/**
+		 * The process of transferring all the pebbles from 
+		 * a white bag to its paired black bag 
+		 * @param bag
+		 */
 		public synchronized void transferPebbles(int bag){
 //			in each case transfers all the pebbles from 
 //			the white bag into the black bag
@@ -365,7 +407,12 @@ public class PebbleGame {
 		
 			}		
 		}
-		
+		/**
+		 * A function that returns the current status of 
+		 * a chosen thread -- whether it is winning or not.
+		 * @return playerStatus
+		 */
+		// TODO: implement this functionality with a listener 
 		public boolean isWinning() {
 			
 			int sumOfPebbles = 0;
@@ -375,7 +422,7 @@ public class PebbleGame {
 				sumOfPebbles +=pebblesInHand.get(i).getWeight();
 				
 			}
-			
+//			System.out.println(Thread.currentThread().getName()+"'s current hand is:\n"+sumOfPebbles);
 			if (sumOfPebbles == 100) {
 				
 				playerStatus = true;

@@ -14,12 +14,12 @@ public class FileIO
 	 * 
 	 * @return String fileDir
 	 */
-    public String getFile() {
+    public String getFile(String test) {
 		
 		Scanner keyboardInput = new Scanner(System.in);
 		//System.out.println("Enter the file path");
 		//String fileDir = keyboardInput.nextLine();
-		String test = "C:/Users/Niko216/Desktop/example_file_2.csv";
+		
 		return test;
 
 	}
