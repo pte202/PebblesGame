@@ -18,7 +18,7 @@ public class PebbleGame {
 	private static ArrayList<Pebbles> pebblesBlack2 = new ArrayList<Pebbles>();
 	private static ArrayList<Pebbles> pebblesBlack3 = new ArrayList<Pebbles>();
 	
-	
+	private static boolean isFirst = true;
 	
 	private static ArrayList<Pebbles> pebblesWhite1 = new ArrayList<Pebbles>();;
 	private static ArrayList<Pebbles> pebblesWhite2 = new ArrayList<Pebbles>();;
@@ -28,7 +28,7 @@ public class PebbleGame {
 		
 	}
 	public static void run() throws FileNotFoundException, IllegalWeightException{
-		Main.testmain();
+		//Main.testmain();
 	}
 	/**
 	 * 
@@ -86,14 +86,10 @@ public class PebbleGame {
 			PebbleGame pebbleGame = new PebbleGame();
 			Player player = pebbleGame.new Player();
 			PlayerActions playerAction = pebbleGame.new PlayerActions();
-			new Thread(player).start();
-			new Thread(player).start();
-			new Thread(player).start();
-			new Thread(player).start();
-			new Thread(player).start();
-			new Thread(player).start();
-			new Thread(player).start();
-			new Thread(player).start();
+			for(int i=0; i<=7; i++){
+				new Thread(player).start();
+			}
+			
 //			int bag;
 //			boolean playerCountValidation ;
 //			Pebbles test = new Pebbles();
@@ -137,42 +133,50 @@ public class PebbleGame {
 	class Player implements Runnable{
 		@Override
 		public void run() {
-			
 			int bag;
 			PebbleGame pebbleGame = new PebbleGame();
 			PlayerActions playerActions = pebbleGame.new PlayerActions();
 			
-			bag = playerActions.chooseBag();
+			
+			
 			synchronized(this){
-			playerActions.initialDrawPebbles(bag);
+				bag = playerActions.chooseBag();
+				playerActions.initialDrawPebbles(bag);
 			}
 			//status = p1.isWinning();
 						
-			while (!playerActions.isWinning()) {
+			while (!playerActions.isWinning()&&isFirst) {
 				synchronized(this){
-				
-				bag = playerActions.chooseBag();
-				
-				while(true)
-				{
-					if(getBag(bag).size()==0){
-						playerActions.transferPebbles(bag);
-						bag = playerActions.chooseBag();
-//						System.out.println("new bag");
+					
+					bag = playerActions.chooseBag();
+					
+					while(true)
+					{
+						if(getBag(bag).size()==0){
+							playerActions.transferPebbles(bag);
+							bag = playerActions.chooseBag();
+//							System.out.println("new bag");
+						}
+						else
+							break;
 					}
-					else
-						break;
+					playerActions.discardPebbles(bag);
+					playerActions.drawPebbles(bag);
 				}
-				playerActions.discardPebbles(bag);
-				playerActions.drawPebbles(bag);
+							
+			}
+			if(isFirst)
+			{
+				isFirst=false;
+				ArrayList<Integer> weightArray = new ArrayList<Integer>();
+				for (Pebbles n: playerActions.pebblesInHand){
+					weightArray.add(n.getWeight());
 				}
-				
+				System.out.println( Thread.currentThread().getName()+"  has won!!!\n The winning hand is: "+ weightArray.toString());
+			
 			}
-			ArrayList<Integer> weightArray = new ArrayList<Integer>();
-			for (Pebbles n: playerActions.pebblesInHand){
-				weightArray.add(n.getWeight());
-			}
-			System.out.println( Thread.currentThread().getName()+"  has won!!!\n The winning hand is: "+ weightArray.toString());
+			
+			
 			
 		}
 		public ArrayList<Pebbles> getBag (int bag){
@@ -435,11 +439,11 @@ public class PebbleGame {
 				sumOfPebbles +=pebblesInHand.get(i).getWeight();
 				
 			}
-			System.out.println(Thread.currentThread().getName()+"'s current hand is:\n"+sumOfPebbles);
-			if (sumOfPebbles == 100) {
+//			System.out.println(Thread.currentThread().getName()+"'s current hand is:\n"+sumOfPebbles);
+			if (sumOfPebbles == 500) {
 				
 				playerStatus = true;
-				
+					
 				return playerStatus;
 			}
 			
