@@ -87,7 +87,9 @@ public class PebbleGame {
 			Player player = pebbleGame.new Player();
 			PlayerActions playerAction = pebbleGame.new PlayerActions();
 			for(int i=0; i<=7; i++){
-				new Thread(player).start();
+				Thread thread = new Thread(player);
+				thread.setName("Player "+i);
+				thread.start();
 			}
 			
 //			int bag;
@@ -147,7 +149,6 @@ public class PebbleGame {
 						
 			while (!playerActions.isWinning()&&isFirst) {
 				synchronized(this){
-					
 					bag = playerActions.chooseBag();
 					
 					while(true)
@@ -440,7 +441,7 @@ public class PebbleGame {
 				
 			}
 //			System.out.println(Thread.currentThread().getName()+"'s current hand is:\n"+sumOfPebbles);
-			if (sumOfPebbles == 500) {
+			if (sumOfPebbles == 100) {
 				
 				playerStatus = true;
 					

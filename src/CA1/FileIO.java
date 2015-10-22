@@ -43,8 +43,8 @@ public class FileIO
         //Set the delimiter used in file
         scanner.useDelimiter(",");
          
-        //Get all tokens and store them in some data structure
-        //I am just printing them
+        //Get all tokens and store them a list
+        //
         while (scanner.hasNext())
         {
         	int value = Integer.parseInt(scanner.next());
