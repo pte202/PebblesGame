@@ -5,6 +5,7 @@ package CA1;
  */
 public class IllegalWeightException extends Exception {
     public IllegalWeightException(String message) {
+    	
         super(message);
     }
 }
