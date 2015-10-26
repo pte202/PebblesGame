@@ -2,22 +2,17 @@ package CA1;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
-import java.util.Scanner;
-import java.util.Set;
 
 
 /**
+ * PebbleGame Class. This class simulates a games a pebbles.
+ * It includes nested classes for the game configuration,  
  * 
  *
  */
 public class PebbleGame {
-	
-	private int numOfWhiteBags = 3;
-	private int numOfBlackBags = 3;
-	
+		
 	// black bags
 	private static ArrayList<Pebbles> pebblesBlack1 = new ArrayList<Pebbles>();
 	private static ArrayList<Pebbles> pebblesBlack2 = new ArrayList<Pebbles>();
@@ -26,48 +21,54 @@ public class PebbleGame {
 	private static boolean isFirst = true;
 	
 	// white bags
-	private static ArrayList<Pebbles> pebblesWhite1 = new ArrayList<Pebbles>();;
-	private static ArrayList<Pebbles> pebblesWhite2 = new ArrayList<Pebbles>();;
-	private static ArrayList<Pebbles> pebblesWhite3 = new ArrayList<Pebbles>();;
+	private static ArrayList<Pebbles> pebblesWhite1 = new ArrayList<Pebbles>();
+	private static ArrayList<Pebbles> pebblesWhite2 = new ArrayList<Pebbles>();
+	private static ArrayList<Pebbles> pebblesWhite3 = new ArrayList<Pebbles>();
 	
-	PebbleGame() {
-		
-	}
-	public static void run() throws FileNotFoundException, IllegalWeightException{
-		//Main.testmain();
-	}
 	/**
 	 * 
 	 *
 	 */
-	static class Main {
+	static class Configuration {
 		
+		/**
+	     * Method set ups the game by getting the number of 
+	     * players and the file paths with the 
+	     * pebbles'weights  from the user
+	     *
+	     * @throws NegativeNumberOfRecordsAddedException
+	     * @throws RecordMismatchException
+	     * @throws IllegalIDException
+	     */
 		private static void gameSetUp() {
 			
-			// create file instance
-			FileIO file = new FileIO();
+			int numberOfPlayers=0;
 			
 			while(true){
 				
 				try {
 				
-					int numberOfPlayers = file.getNumberOfPlayers();
+					numberOfPlayers = InputOutput.getNumberOfPlayers();
 					
-					file.isValidNumberOfPlayers(numberOfPlayers);
+					InputOutput.isValidNumberOfPlayers(numberOfPlayers);
 					
-					String [] files = file.getFiles();
+					String [] files = new String [3];
 					
-					pebblesBlack1=file.readFileAndFill(files[0], pebblesBlack1);
+					for (int i=0; i<3; i++) {
+						String fileDir = InputOutput.getFiles();
+						files[i] = fileDir;
+					}
+					pebblesBlack1=InputOutput.readFileAndFillArray(files[0], pebblesBlack1);
 					
-					file.isValidFile(numberOfPlayers, pebblesBlack1);
+					InputOutput.isValidFile(numberOfPlayers, pebblesBlack1);
 					
-					pebblesBlack2=file.readFileAndFill(files[0], pebblesBlack2);
+					pebblesBlack2=InputOutput.readFileAndFillArray(files[1], pebblesBlack2);
 					
-					file.isValidFile(numberOfPlayers, pebblesBlack2);
+					InputOutput.isValidFile(numberOfPlayers, pebblesBlack2);
 					
-					pebblesBlack3=file.readFileAndFill(files[0], pebblesBlack3);
+					pebblesBlack3=InputOutput.readFileAndFillArray(files[3], pebblesBlack3);
 					
-					file.isValidFile(numberOfPlayers, pebblesBlack3);
+					InputOutput.isValidFile(numberOfPlayers, pebblesBlack3);
 				  
 				} catch (InvalidNumberOfPebblesException e) {
 					System.out.println("This is an invalid number of pebbles! "
@@ -89,27 +90,32 @@ public class PebbleGame {
 					
 				break;
 				
-			
-			
-			
-			
-			
 			// get the file location
 			//String fileDir1 = file.getFile("C:/Users/user/Desktop/example_file_1.csv");
 			//String fileDir2 = file.getFile("C:/Users/user/Desktop/example_file_2.csv");
 			//String fileDir3 = file.getFile("C:/Users/user/Desktop/example_file_3.csv");
-			
-			
-			
-			
-			
-	
-	
+
 			//System.out.println("Black 1 " + pebblesBlack1.toString());
 			//System.out.println("Black 1 " + pebblesBlack2.toString());
 			//System.out.println("Black 1 " + pebblesBlack3.toString());
+			}
+			
+			threadSetUp(numberOfPlayers);
+			
+			
 		}
-	}
+		private static void threadSetUp(int numberOfPlayers) {
+			
+			PebbleGame pebbleGame = new PebbleGame();
+			Player player = pebbleGame.new Player();
+			for(int i=0; i<=numberOfPlayers; i++){
+				Thread thread = new Thread(player);
+				thread.setName("Player "+i);
+				thread.start();
+			}	
+		}
+		
+		
 		/**
 		 * 
 		 * @param args
@@ -118,17 +124,7 @@ public class PebbleGame {
 		 */
 		public static void main (String [] args) throws FileNotFoundException, IllegalWeightException {
 
-			gameSetUp();
-			
-			PebbleGame pebbleGame = new PebbleGame();
-			Player player = pebbleGame.new Player();
-			PlayerActions playerAction = pebbleGame.new PlayerActions();
-			for(int i=0; i<=7; i++){
-				Thread thread = new Thread(player);
-				thread.setName("Player "+i);
-				thread.start();
-			}
-			
+			gameSetUp();	
 			
 		}
 	}
@@ -136,6 +132,7 @@ public class PebbleGame {
 	 *
 	 */
 	class Player implements Runnable{
+		
 		@Override
 		public void run() {
 			int bag;
