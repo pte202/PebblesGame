@@ -3,6 +3,7 @@ package CA1;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -29,7 +30,7 @@ public class PebbleGame {
 	 * 
 	 *
 	 */
-	static class Configuration {
+	static class Main {
 		
 		/**
 	     * Method set ups the game by getting the number of 
@@ -44,6 +45,8 @@ public class PebbleGame {
 			
 			int numberOfPlayers=0;
 			
+			String [] files = new String [3];
+			
 			while(true){
 				
 				try {
@@ -51,24 +54,58 @@ public class PebbleGame {
 					numberOfPlayers = InputOutput.getNumberOfPlayers();
 					
 					InputOutput.isValidNumberOfPlayers(numberOfPlayers);
+				}
+				catch (IllegalNumberOfPlayersException e) {
+					System.out.println("This is an invalid number of players! "
+							+ "Please try again!");
+					continue;
+				}
+				catch (NumberFormatException e) {
+					System.out.println("This is invalid number format!"
+							+ "Please try again!");
+					continue;
+				}
+				catch (Exception e) {
+					System.out.println("Invalid number of players!"
+							+ "Please try again!");
+				}
+				break;					
+			}	
+
+			while(true) {
+				int count=0;
+				while(true) {
 					
-					String [] files = new String [3];
-					
-					for (int i=0; i<3; i++) {
-						String fileDir = InputOutput.getFiles();
-						files[i] = fileDir;
+					try {
+						String fileDir = InputOutput.getFileDir(count);
+						files[count] = fileDir;
 					}
-					pebblesBlack1=InputOutput.readFileAndFillArray(files[0], pebblesBlack1);
+					catch (FileNotFoundException e) {
+						System.out.println("Not a valid file!");
+						continue;
+					}
+					catch (Exception e) {
+						System.out.println("Not a valid file!");
+						continue;
+					}
+					count++;
+					if(count == 3)
+						break;
+				}
+				
+				try {
+				
+				pebblesBlack1 = InputOutput.readFileAndFillArray(files[0], pebblesBlack2);
 					
-					InputOutput.isValidFile(numberOfPlayers, pebblesBlack1);
+				InputOutput.isValidPlayerToWeightRation(numberOfPlayers, pebblesBlack1);
 					
-					pebblesBlack2=InputOutput.readFileAndFillArray(files[1], pebblesBlack2);
+				pebblesBlack2 = InputOutput.readFileAndFillArray(files[1], pebblesBlack2);
 					
-					InputOutput.isValidFile(numberOfPlayers, pebblesBlack2);
+				InputOutput.isValidPlayerToWeightRation(numberOfPlayers, pebblesBlack2);
 					
-					pebblesBlack3=InputOutput.readFileAndFillArray(files[3], pebblesBlack3);
+				pebblesBlack3 = InputOutput.readFileAndFillArray(files[2], pebblesBlack3);
 					
-					InputOutput.isValidFile(numberOfPlayers, pebblesBlack3);
+				InputOutput.isValidPlayerToWeightRation(numberOfPlayers, pebblesBlack3);
 				  
 				} catch (InvalidNumberOfPebblesException e) {
 					System.out.println("This is an invalid number of pebbles! "
@@ -76,34 +113,27 @@ public class PebbleGame {
 							+ "number of players" 
 							+ "Please try with another file!");
 					continue;
-				} catch (IllegalNumberOfPlayersException e) {
-					System.out.println("This is an invalid number of players! "
-							+ "Please try again!");
-					continue;
 				} catch (IllegalWeightException e){
-					System.out.println("You are trying to use files where there is a negative weight value!");
-				    
+					//System.out.println("You are trying to use files where there is a negative weight value!");   
 				} catch (Exception e) {
 					System.out.println("There is a problem!");
+					e.printStackTrace();
 					continue;
-				} 
-					
+				} 					
 				break;
 				
-			// get the file location
-			//String fileDir1 = file.getFile("C:/Users/user/Desktop/example_file_1.csv");
-			//String fileDir2 = file.getFile("C:/Users/user/Desktop/example_file_2.csv");
-			//String fileDir3 = file.getFile("C:/Users/user/Desktop/example_file_3.csv");
+				//System.out.println(Thread.currentThread().getName()+"'s hand is: "+ playerActions.getArrayList().toString().replace("[", "").replace("]", ""));
 
-			//System.out.println("Black 1 " + pebblesBlack1.toString());
-			//System.out.println("Black 1 " + pebblesBlack2.toString());
-			//System.out.println("Black 1 " + pebblesBlack3.toString());
+				//C:/Users/user/Desktop/example_file_3.csv
 			}
 			
-			threadSetUp(numberOfPlayers);
-			
-			
+			threadSetUp(numberOfPlayers);			
 		}
+		
+		/**
+		 * 
+		 * @param numberOfPlayers
+		 */
 		private static void threadSetUp(int numberOfPlayers) {
 			
 			PebbleGame pebbleGame = new PebbleGame();
@@ -112,6 +142,7 @@ public class PebbleGame {
 				Thread thread = new Thread(player);
 				thread.setName("Player "+i);
 				thread.start();
+				
 			}	
 		}
 		
@@ -128,10 +159,14 @@ public class PebbleGame {
 			
 		}
 	}
+	
 	/**
 	 *
 	 */
 	class Player implements Runnable{
+		
+		// Creates a lock for your method
+		ReentrantLock lock = new ReentrantLock();
 		
 		@Override
 		public void run() {
@@ -141,16 +176,17 @@ public class PebbleGame {
 			
 			
 			
-			synchronized(this){
-				// choose a bag
-				bag = playerActions.chooseBag();
-				// draw 10 pebbles
-				playerActions.initialDrawPebbles(bag);
-			}
-			//status = p1.isWinning();
+			lock.lock();
+		
+			// choose a bag
+			bag = playerActions.chooseBag();
+			// draw 10 pebbles
+			playerActions.initialDrawPebbles(bag);
+			
+			lock.unlock();
 						
 			while (!playerActions.isWinning()&&isFirst) {
-				synchronized(this){
+				lock.lock();
 					bag = playerActions.chooseBag();
 					
 					while(true)
@@ -158,24 +194,24 @@ public class PebbleGame {
 						if(StaticMethods.getBag(bag).size()==0){
 							playerActions.transferPebbles(bag);
 							bag = playerActions.chooseBag();
-//							System.out.println("new bag");
+
 						}
 						else
 							break;
 					}
+					System.out.println(Thread.currentThread().getName()+"'s hand is: "+ playerActions.getArrayList().toString().replace("[", "").replace("]", ""));
 					playerActions.discardPebbles(bag);
-					playerActions.drawPebbles(bag);
-				}
-							
+					playerActions.drawPebbles(bag);					
+			
+				lock.unlock();
 			}
+							
+				
 			if(isFirst)
 			{
 				isFirst=false;
-				ArrayList<Integer> weightArray = new ArrayList<Integer>();
-				for (Pebbles n: playerActions.pebblesInHand){
-					weightArray.add(n.getWeight());
-				}
-				System.out.println( Thread.currentThread().getName()+"  has won!!!\nThe winning hand is: "+ weightArray.toString());
+	
+				System.out.println(Thread.currentThread().getName()+"  has won!!!\nThe winning hand is: "+ playerActions.getArrayList().toString());
 			
 			}
 			
@@ -184,6 +220,7 @@ public class PebbleGame {
 		}
 		
 	}
+	
 	/**
 	 * 
 	 * 
@@ -241,6 +278,11 @@ public class PebbleGame {
 		// pebbles that the players holds
 		private ArrayList<Pebbles> pebblesInHand = new ArrayList<Pebbles>();
 		
+		// array with the pebble weights
+		private ArrayList<Integer> weightArray = new ArrayList<Integer>();
+		
+		//ReentrantLock lock = new ReentrantLock();
+		
 		// status of the player; when it turns 
 		// to true this means he has won the game
 		private boolean playerStatus = false;
@@ -266,12 +308,13 @@ public class PebbleGame {
 		 * Initial draw of the  pebbles
 		 * (each player draws 10 random pebbles from a randomly chosen bag)
 		 */
-		public synchronized void initialDrawPebbles(int bag) {
+		public void initialDrawPebbles(int bag) {
 			
 			for (int i=1; i <= 10; i++) {
 				
 				drawPebbles(bag);				
-			}			
+			}	
+		
 		}
 		
 		/**
@@ -279,8 +322,8 @@ public class PebbleGame {
 		 * black bag
 		 * @param bag
 		 */
-		public synchronized void drawPebbles(int bag) {
-		
+		public void drawPebbles(int bag) {
+			
 			int pebbleRand;
 			  
 			switch(bag) {
@@ -290,6 +333,9 @@ public class PebbleGame {
 				
 				// add the chosen pebble to our hand
 				pebblesInHand.add(pebblesBlack1.get(pebbleRand));
+				
+				// add the pebble weight to array
+				weightArray.add(pebblesBlack1.get(pebbleRand).getWeight());
 
 				// remove the chosen pebble
 				pebblesBlack1.remove(pebbleRand);		
@@ -303,6 +349,9 @@ public class PebbleGame {
 
 				// add the chosen pebble to our hand
 				pebblesInHand.add(pebblesBlack2.get(pebbleRand));
+				
+				// add the pebble weight to array
+				weightArray.add(pebblesBlack2.get(pebbleRand).getWeight());
 
 				// remove the chosen pebble
 				pebblesBlack2.remove(pebbleRand);
@@ -317,14 +366,16 @@ public class PebbleGame {
 
 				// add the chosen pebble to our hand
 				pebblesInHand.add(pebblesBlack3.get(pebbleRand));
+				
+				// add the pebble weight to array
+				weightArray.add(pebblesBlack3.get(pebbleRand).getWeight());
 
 				// remove the chosen pebble
 				pebblesBlack3.remove(pebbleRand);
 						
-				
 				break;
 		
-			}		
+			}
 	
 		}
 		/**
@@ -332,7 +383,7 @@ public class PebbleGame {
 		 * the player's current hand into the white bag
 		 * @param bag
 		 */
-		public synchronized void discardPebbles(int bag){
+		public void discardPebbles(int bag){
 			
 			int pebbleRand;
 			switch(bag) {
@@ -350,6 +401,9 @@ public class PebbleGame {
 				// remove the chosen pebble
 				pebblesInHand.remove(pebbleRand);
 				
+				// remove the pebble weight from array
+				weightArray.remove(weightArray.get(pebbleRand));
+				
 				break;
 				
 			case 2: 
@@ -364,7 +418,9 @@ public class PebbleGame {
 
 				// remove the chosen pebble
 				pebblesInHand.remove(pebbleRand);
-						
+				
+				// remove the pebble weight from array
+				weightArray.remove(weightArray.get(pebbleRand));						
 				
 				break;
 				
@@ -379,13 +435,13 @@ public class PebbleGame {
  
 				// remove the chosen pebble
 				pebblesInHand.remove(pebbleRand);
-						
+				
+				// remove the pebble weight from array
+				weightArray.remove(weightArray.get(pebbleRand));					
 				
 				break;
 		
-			}		
-		
-			
+			}	
 			
 		}
 		/**
@@ -393,9 +449,11 @@ public class PebbleGame {
 		 * a white bag to its paired black bag 
 		 * @param bag
 		 */
-		public synchronized void transferPebbles(int bag){
+		public void transferPebbles(int bag){
 //			in each case transfers all the pebbles from 
 //			the white bag into the black bag
+			
+			
 			switch(bag) {
 			
 			case 1:
@@ -427,7 +485,9 @@ public class PebbleGame {
 				
 				break;
 		
-			}		
+			}	
+			
+			
 		}
 		/**
 		 * A function that returns the current status of 
@@ -455,6 +515,10 @@ public class PebbleGame {
 			return playerStatus;
 			
 		}	
+		
+		public ArrayList<Integer> getArrayList(){
+			return weightArray;
+		}
 	}
 	
 

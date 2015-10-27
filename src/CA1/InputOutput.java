@@ -1,5 +1,6 @@
 package CA1;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -19,18 +20,25 @@ public class InputOutput
 	 * 
 	 * @pre directory is valid and it exists
 	 * @return String fileDir
+	 * @throws FileNotFoundException 
 	 */
-    public static String getFiles() {
-				
-		Scanner keyboardInput = null;
-		System.out.println("Enter the file path: ");
-		keyboardInput = new Scanner(System.in);
-		String fileDir = keyboardInput.nextLine();
+    public static String getFileDir(int statement) throws FileNotFoundException {
+
+    	Scanner keyboardInput = null;
+    	System.out.println("Enter the file path " + statement + ": ");
+    	keyboardInput = new Scanner(System.in);
+    	String fileDir = keyboardInput.nextLine();
+			
+    	File f = new File(fileDir);
+    	if (f.exists() && !f.isDirectory()) 
+    		return fileDir;
+    	else {
+			throw new FileNotFoundException();
+		}
+			
+    }
 		
-		keyboardInput.close();
-		return fileDir;
-	}
-    
+
     public static int getNumberOfPlayers() {
     	
     	System.out.println("Enter the number of players");
@@ -38,7 +46,7 @@ public class InputOutput
 		int numberOfPlayers = Integer.parseInt(keyboardInput.nextLine());
 		
 		// close scanner
-		keyboardInput.close();
+		//keyboardInput.close();
 		
 		return numberOfPlayers;    	
     }
@@ -61,7 +69,7 @@ public class InputOutput
     public static ArrayList<Pebbles> readFileAndFillArray(String fileDir, ArrayList<Pebbles> bagContentsPebble) throws IllegalWeightException, FileNotFoundException {
 
     	//Get scanner instance
-        Scanner scanner = new Scanner(new FileReader (fileDir));
+        Scanner scanner = new Scanner(new FileReader(fileDir));
          
         //Set the delimiter used in file
         scanner.useDelimiter(",");
@@ -119,7 +127,7 @@ public class InputOutput
      * @param bagContentsPebble
      * @throws InvalidNumberOfPebblesException
      */
-    public static void isValidFile(int numberOfPlayers, ArrayList<Pebbles> bagContentsPebble) throws InvalidNumberOfPebblesException {
+    public static void isValidPlayerToWeightRation(int numberOfPlayers, ArrayList<Pebbles> bagContentsPebble) throws InvalidNumberOfPebblesException {
     	
     	if (bagContentsPebble.size() < 11*numberOfPlayers )
     		throw new InvalidNumberOfPebblesException(null);    		
@@ -129,4 +137,3 @@ public class InputOutput
     
 
 }
-
