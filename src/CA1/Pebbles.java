@@ -1,9 +1,10 @@
 package CA1;
 
+
 public class Pebbles {
 	
 	private int weight;
-	private int id;
+
 	private int correspondingBag;
 	
 	Pebbles () {
@@ -13,7 +14,7 @@ public class Pebbles {
 	Pebbles (int weight, int correspondingBag) {
 		
 		this.weight = weight;
-		this.correspondingBag = correspondingBag;
+		this.setCorrespondingBag(correspondingBag);
 				
 	}
 	
@@ -46,6 +47,14 @@ public class Pebbles {
 	public int getWeight () {
 	
 		return weight;
+	}
+
+	public int getCorrespondingBag() {
+		return correspondingBag;
+	}
+
+	public void setCorrespondingBag(int correspondingBag) {
+		this.correspondingBag = correspondingBag;
 	}
 	
 

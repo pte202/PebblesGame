@@ -1,8 +1,14 @@
 package CA1;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -16,6 +22,7 @@ import java.util.Scanner;
 public class InputOutput
 {
 	/**
+	 * getFileDir method.
 	 * Receives user input and returns the input directory
 	 * 
 	 * @pre directory is valid and it exists
@@ -28,7 +35,10 @@ public class InputOutput
     	System.out.println("Enter the file path " + statement + ": ");
     	keyboardInput = new Scanner(System.in);
     	String fileDir = keyboardInput.nextLine();
-			
+    	
+		if(fileDir.equalsIgnoreCase("X"))
+			System.exit(0);
+		
     	File f = new File(fileDir);
     	if (f.exists() && !f.isDirectory()) 
     		return fileDir;
@@ -38,13 +48,21 @@ public class InputOutput
 			
     }
 		
-
+    /**
+     * getNumberOfPlayers method.
+     * Get the number of players, who are going 
+     * to play the Pebble game from the user
+     * 
+     * @return numberOfPlayers
+     */
     public static int getNumberOfPlayers() {
     	
     	System.out.println("Enter the number of players");
 		Scanner keyboardInput = new Scanner(System.in);
-		int numberOfPlayers = Integer.parseInt(keyboardInput.nextLine());
-		
+		String nextLine = keyboardInput.nextLine();
+		if(nextLine.equalsIgnoreCase("X"))
+			System.exit(0);
+		int numberOfPlayers = Integer.parseInt(nextLine);
 		// close scanner
 		//keyboardInput.close();
 		
@@ -53,6 +71,8 @@ public class InputOutput
     
     
     /**
+     * 
+     * readFileAndFillArray method.
      * Receives a file and returns an ArrayList
      * filled with the contents of the file.
      * @pre The file has to exist. 
@@ -103,7 +123,8 @@ public class InputOutput
     }
     
     /**
-     * 
+     *
+     * isValidNumberOfPlayers method.
      * Checks if the number of players is valid.
      * Does not return anything
      * 
@@ -120,7 +141,10 @@ public class InputOutput
     
     /**
      * 
-     * Checks if the number of pebbles is valid.
+     * isValidPlayerToWeightRation method.
+     * Checks if the number of pebbles is valid 
+     * compared to the players in order to start  
+     * the game.
      * Does not return anything.
      * 
      * @param numberOfPlayers
@@ -133,7 +157,64 @@ public class InputOutput
     		throw new InvalidNumberOfPebblesException(null);    		
     	
     }
-
     
+    /**
+     * createFile method.
+     * Creates a file in the program directory.
+     * 
+     * @param filename;
+     * @throws UnsupportedEncodingException 
+     * @throws FileNotFoundException 
+     * 
+     */
+    public static void createFile(String fileName) throws FileNotFoundException, UnsupportedEncodingException{
+    	PrintWriter writer = new PrintWriter(fileName, "UTF-8");
+    	writer.close();
+    }
+    
+    /**
+     * writeToFile method.
+     * Writes given information to a 
+     * given file and gives true or 
+     * false if the operation is successful or
+     * not successful, respectively.
+     * 
+     * @param line
+     * @param fileName
+     * @return boolean
+     *
+     */
+    public static boolean writeToFile(String line, String fileName) {
+    	
+    	Writer output;
+    	try {
+			output= new BufferedWriter(new FileWriter(fileName, true));
+		
+    	output.append(line);
+    	output.append("\n");
+    	output.close();
+    	} catch (IOException e) {
+			return false;
+		}
+    	return true;
 
+    }
+    
+    /**
+     * 
+     * @param file
+     * @return
+     */
+    public static boolean checkFileExistance(String file) {
+    	
+    	File f = new File(file);
+    	
+    	if (f.exists() && !f.isDirectory()) {
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    	
+    }
 }
