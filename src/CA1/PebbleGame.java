@@ -4,13 +4,19 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.locks.ReentrantLock;
+//import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
- * PebbleGame Class. This class simulates a games a pebbles.
- * It includes nested classes for the game configuration,  
+ * PebbleGame Class. This class includes several nested classes.
+ * The Main class that simulates the pebble game. The Player class
+ * which represent a thread (player). The StaticMethods class, 
+ * which includes several helpful methods that are used in order to
+ * run the game correctly. The PlayerActions class that defines the
+ * actions of each thread, such as draw a pebble and discard a pebble.
  * 
+ * @authors Nikolai Dochev, Preslav Enchev 
+ * @version 1.0 28/10/2015
  *
  */
 public class PebbleGame {
@@ -22,6 +28,7 @@ public class PebbleGame {
 	
 	///private static boolean isFirst = true;
 	private static ArrayList <Thread> activeThreads=new ArrayList <Thread>();
+	private static boolean isFirst = true;
 
 	
 	// white bags
@@ -30,31 +37,35 @@ public class PebbleGame {
 	private static ArrayList<Pebbles> pebblesWhite3 = new ArrayList<Pebbles>();
 	
 	/**
-	 * 
+	 * Nested static Main class.
+	 * Simulates the Pebble Game by using gameSetUpAndStart method, which 
+	 * ensures that every case need for the game to start is 
+	 * satisfied. it also uses threadSetUp initialize the 
+	 * number of threads(players) based on the user input.
+	 * The class has a main method, which invokes the whole game
 	 *
 	 */
 	static class Main {
 		
 		/**
-	     * Method set ups the game by getting the number of 
+	     * Method sets up the game by getting the number of 
 	     * players and the file paths with the 
 	     * pebbles'weights  from the user
 	     *
-	     * @throws NegativeNumberOfRecordsAddedException
-	     * @throws RecordMismatchException
-	     * @throws IllegalIDException
 	     */
-		private static void gameSetUp() {
+		private static void gameSetUpAndStart() {
 			
-			int numberOfPlayers=0;
+			int numberOfPlayers = 0;
 			
+			// array with the files for each bag
 			String [] files = new String [3];
 			
+			// get a valid number of players
 			while(true){
 				
 				try {
-				
-					numberOfPlayers = InputOutput.getNumberOfPlayers();
+					numberOfPlayers = 3;
+//					numberOfPlayers = InputOutput.getNumberOfPlayers();
 					
 					InputOutput.isValidNumberOfPlayers(numberOfPlayers);
 				}
@@ -74,19 +85,22 @@ public class PebbleGame {
 				}
 				break;					
 			}	
-
+			
+			// get valid files
 			while(true) {
 				int count=0;
 				while(true) {
 					
 					try {
-						String fileDir = InputOutput.getFileDir(count);
+						String fileDir = "C:/Users/user/Desktop/example_file_3.csv";
+//						String fileDir = InputOutput.getFileDir(count);
+						
 						files[count] = fileDir;
 					}
-					catch (FileNotFoundException e) {
-						System.out.println("Not a valid file!");
-						continue;
-					}
+//					catch (FileNotFoundException e) {
+//						System.out.println("Not a valid file!");
+//						continue;
+//					}
 					catch (Exception e) {
 						System.out.println("Not a valid file!");
 						continue;
@@ -134,16 +148,16 @@ public class PebbleGame {
 		}
 		
 		/**
+		 * Method sets up the number of threads
+		 * depending on the user input		 
 		 * 
-		 * 
-		 * 
-		 * @param numberOfPlayers
+		 * @param numberOfPlayers    number of players
 		 */
 		private static void threadSetUp(int numberOfPlayers) {
 			
 			PebbleGame pebbleGame = new PebbleGame();
 			Player player = pebbleGame.new Player();
-			for(int i=0; i<=numberOfPlayers; i++){
+			for(int i=0; i<numberOfPlayers; i++){
 				Thread thread = new Thread(player);
 				thread.setName("Player "+i);
 				activeThreads.add(thread);
@@ -153,29 +167,29 @@ public class PebbleGame {
 			}	
 		}
 		
-		
 		/**
-		 * 
+		 * This is the main method of the program. 
+		 * It executes the whole code - sets up the 
+		 * game and starts it
+		 * 	
 		 * @param args
 		 * @throws FileNotFoundException
 		 * @throws IllegalWeightException
 		 */
-		public static void main (String [] args) throws FileNotFoundException, IllegalWeightException {
+		public static void main (String[] args) throws FileNotFoundException, IllegalWeightException {
 
-			gameSetUp();	
+			gameSetUpAndStart();	
 			
 		}
 	}
 	
 	/**
-	 *
+	 * Nested Player class. Implements the Runnable interface.
+	 * The class acts as a thread. It overrides the 
+	 * run method, which defines the actions of the thread
+	 * during the game
 	 */
 	class Player implements Runnable{
-		
-		// Creates a lock for your method
-		private ReentrantLock lock = new ReentrantLock();
-
-	
 		
 		@Override
 		public void run() {
@@ -184,9 +198,8 @@ public class PebbleGame {
 			PlayerActions playerActions = pebbleGame.new PlayerActions();
 			
 			// get the name of the players actions's file
-			String actionsFile = playerActions.getFile();
+			String actionsFile = StaticMethods.getFile();
 			
-			lock.lock();
 		
 			// choose a bag
 			bag = playerActions.chooseBag();
@@ -206,16 +219,15 @@ public class PebbleGame {
 					System.out.println("Error while trying to create playerActionsFile");
 				}
 			}
+			synchronized(this){
+				// draw 10 pebbles
+				playerActions.initialDrawPebbles(bag);
+				System.out.println(Thread.currentThread().getName()+"'s hand is: "+ playerActions.getArrayList().toString().replace("[", "").replace("]", ""));
+			}
 			
-			// draw 10 pebbles
-			playerActions.initialDrawPebbles(bag);
-			System.out.println(Thread.currentThread().getName()+"'s hand is: "+ playerActions.getArrayList().toString().replace("[", "").replace("]", ""));
-
 			
-			lock.unlock();
-			
-			while (!playerActions.isWinning()) {
-				lock.lock();
+			while (!playerActions.isWinning()&&isFirst) {
+				synchronized(this){
 					bag = playerActions.chooseBag();
 					
 					while(true)
@@ -231,19 +243,17 @@ public class PebbleGame {
 					
 					playerActions.discardPebbles(bag);
 					playerActions.drawPebbles(bag);		
-		
-				lock.unlock();
-			}
-							
-				
-			
-	
-			System.out.println(Thread.currentThread().getName()+"  has won!!!\nThe winning hand is: "+ playerActions.getArrayList().toString());
-			for (Thread thread : activeThreads){
-				thread.interrupt();
+				}
 			}
 			
+			if (isFirst){
+				isFirst = false;
+				System.out.println(Thread.currentThread().getName()+"  has won!!!\nThe winning hand is: "+ playerActions.getArrayList().toString());
+			}
 			
+//			for (Thread thread : activeThreads){
+//				thread.interrupt();
+//			}
 			
 			
 		}
@@ -251,24 +261,34 @@ public class PebbleGame {
 	}
 	
 	/**
-	 * 
-	 * 
-	 *
+	 * Nested static StaticMethods class. Includes static methods - 
+	 * getFile, randInt, getBag, which help 
 	 */
 	static class StaticMethods {
-		static ReentrantLock lock = new ReentrantLock();
+		
+		// name of the player actions file
+		private static String file = "PebbleGame.txt";	
 		/**
-		 * Returns a pseudo-random number between min and max, inclusive.
-		 * The difference between min and max can be at most
-		 * <code>Integer.MAX_VALUE - 1</code>.
+		* Returns the file containing the actions of 
+		* the players playing the pebbles game
+		* 
+		* @return file    a file
+		*/
+		public static String getFile(){
+			return file;		
+		}
+		
+		/**
+		 * The method returns a random number between the 
+		 * minimum and maximum values that are 
+		 * passed to it. 
 		 *
-		 * @param min Minimum value
-		 * @param max Maximum value.  Must be greater than min.
+		 * @param min      Minimum value
+		 * @param max      Maximum value.  Must be greater than min.
 		 * @return Integer between min and max, inclusive.
 		 * @see java.util.Random#nextInt(int)
 		 */
-		public static int randInt(int min, int max) {
-			lock.lock();
+		public synchronized static int randInt(int min, int max) {
 			
 		    Random rand = new Random();
 		    int randomNum = 0;
@@ -278,12 +298,18 @@ public class PebbleGame {
 		    // it doesn't enter the function and thus 
 		    // does not cause an exception
 	    	randomNum = rand.nextInt((max - min) + 1) + min;
-	    	lock.unlock();
 		    return randomNum;
 		   
 		}
 		
-		public static ArrayList<Pebbles> getBag (int bag){
+		/**
+		 * The method returns the chosen bag corresponding
+		 * to the randomized number that it accepts
+		 * 
+		 * @param bag       randomized number of the bag
+		 * @return          the chosen the bag
+		 */
+		public synchronized static ArrayList<Pebbles> getBag (int bag){
 			switch (bag){
 				case 1:
 					return pebblesBlack1;
@@ -294,52 +320,35 @@ public class PebbleGame {
 			}
 			return null;
 		}
-		
-		
 	}
 	
 	
 	/**
-	 * Nested player class
+	 * Nested PlayerActions class. Contains methods
+	 * which determine the actions of the players(threads).
+	 * 
 	 */
 	class PlayerActions {
 		
 		// pebbles that the players holds
-		private ArrayList<Pebbles> pebblesInHand = new ArrayList<Pebbles>();
+//		private ArrayList<Pebbles> pebblesInHand = new ArrayList<Pebbles>();
 		
 		// array with the pebble weights
 		private ArrayList<Integer> weightArray = new ArrayList<Integer>();
 		
-		private ReentrantLock lock = new ReentrantLock();
 		
-		// name of the player actions file
-		private String file = "PebblesOutput.txt";
 		
-		/**
-		 * Returns the file containing the actions of 
-		 * the players playing the pebbles game
-		 * 
-		 * @return file
-		 */
-		public String getFile(){
-			return file;
-		}
 		
 		// status of the player; when it turns 
 		// to true this means he has won the game
 		private boolean playerStatus = false;
 		
-		public PlayerActions () {
-			
-		}
-		
 		/**
 		 * Choose a bag to draw pebbles from on random
 		 * 
-		 * @return chosen bag
+		 * @return bag     chosen bag
 		 */
-		
-		public int chooseBag() {
+		public synchronized int chooseBag() {
 			
 			// generate random number to represent bag
 			int bag = StaticMethods.randInt(1,3);
@@ -348,33 +357,32 @@ public class PebbleGame {
 		}
 		
 		/**
-		 * Initial draw of the  pebbles. The method uses the drawPebbles 
-		 * method and executes it 10 times.
-		 * (each player draws 10 random pebbles from a randomly chosen bag)
+		 * Initial draw of the  pebbles. The method uses the 
+		 * drawPebbles method and executes it 10 times 
+		 * (each player draws 10 random pebbles from a randomly 
+		 * chosen bag) to satisfy the Pebble game rules.
+		 * 
+		 * @param bag      randomized bag number
 		 */
-		public void initialDrawPebbles(int bag) {
-			lock.lock();
+		public synchronized void initialDrawPebbles(int bag) {
 			for (int i=1; i <= 10; i++) {
 				
 				drawPebbles(bag);				
 			}	
-			lock.unlock();
 		
 		}
 		
 		/**
 		 * The process of drawing pebbles from a
 		 * black bag
-		 * @param bag
+		 * @param bag      randomized bag number
 		 * @throws UnsupportedEncodingException 
 		 * @throws FileNotFoundException 
 		 */
-		public void drawPebbles(int bag) {			
+		public synchronized void drawPebbles(int bag) {			
 			
 			// the index of the random pebble the player has chosen
 			int pebbleRand;
-			
-			lock.lock();
 			  
 			switch(bag) {
 			case 1: 				
@@ -382,7 +390,7 @@ public class PebbleGame {
 				pebbleRand = StaticMethods.randInt(0, pebblesBlack1.size()-1);
 				
 				// add the chosen pebble to our hand
-				pebblesInHand.add(pebblesBlack1.get(pebbleRand));
+//				pebblesInHand.add(pebblesBlack1.get(pebbleRand));
 				
 				// add the pebble weight to array
 				weightArray.add(pebblesBlack1.get(pebbleRand).getWeight());
@@ -393,7 +401,7 @@ public class PebbleGame {
 				try {
 				InputOutput.writeToFile(Thread.currentThread().getName()+" has drawn a "+pebblesBlack1.get(pebbleRand).getWeight()+
 						" from black bag "+bag +". "+Thread.currentThread().getName()+ 
-						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", ""),file);
+						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", ""),StaticMethods.getFile());
 				}
 				catch (Exception e) {
 					System.out.println("Unpredicted error while trying to write information to a file!");
@@ -409,7 +417,7 @@ public class PebbleGame {
 				pebbleRand = StaticMethods.randInt(0, pebblesBlack2.size()-1);
 
 				// add the chosen pebble to our hand
-				pebblesInHand.add(pebblesBlack2.get(pebbleRand));
+//				pebblesInHand.add(pebblesBlack2.get(pebbleRand));
 				
 
 				
@@ -422,7 +430,7 @@ public class PebbleGame {
 				try {
 				InputOutput.writeToFile(Thread.currentThread().getName()+" has drawn a "+pebblesBlack2.get(pebbleRand).getWeight()+
 						" from black bag "+bag +". "+Thread.currentThread().getName()+ 
-						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", ""),file);
+						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", ""),StaticMethods.getFile());
 				}
 				catch (Exception e) {
 					System.out.println("Unpredicted error while trying to write information to a file!");
@@ -439,7 +447,7 @@ public class PebbleGame {
 				pebbleRand = StaticMethods.randInt(0, pebblesBlack3.size()-1);
 
 				// add the chosen pebble to our hand
-				pebblesInHand.add(pebblesBlack3.get(pebbleRand));
+//				pebblesInHand.add(pebblesBlack3.get(pebbleRand));
 				
 				// add the pebble weight to array
 				weightArray.add(pebblesBlack3.get(pebbleRand).getWeight());
@@ -447,21 +455,20 @@ public class PebbleGame {
 //				System.out.println(Thread.currentThread().getName()+" has drawn a "+pebblesBlack3.get(pebbleRand).getWeight()+
 //						" from black bag "+bag +". "+Thread.currentThread().getName()+ 
 //						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", ""));
-//				try {
-//				InputOutput.writeToFile(Thread.currentThread().getName()+" has drawn a "+pebblesBlack3.get(pebbleRand).getWeight()+
-//						" from black bag "+bag +". "+Thread.currentThread().getName()+ 
-//						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", ""),file);
-//				}
-//				catch (Exception e) {
-//					System.out.println("Unpredicted error while trying to write information to a file!");
-//				}
+				try {
+				InputOutput.writeToFile(Thread.currentThread().getName()+" has drawn a "+pebblesBlack3.get(pebbleRand).getWeight()+
+						" from black bag "+bag +". "+Thread.currentThread().getName()+ 
+						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", ""),StaticMethods.getFile());
+				}
+				catch (Exception e) {
+					System.out.println("Unpredicted error while trying to write information to a file!");
+				}
 //				 remove the chosen pebble
 				pebblesBlack3.remove(pebbleRand);
 						
 				break;
 		
 			}
-			lock.unlock();	
 		}
 		
 		/**
@@ -469,9 +476,9 @@ public class PebbleGame {
 		 * the player's current hand into the white bag
 		 * @param bag
 		 */
-		public void discardPebbles(int bag){
+		public synchronized void discardPebbles(int bag){
 			
-			lock.lock();
+			
 			// the index of the random pebble the player has chosen
 			int pebbleRand;
 			
@@ -480,14 +487,24 @@ public class PebbleGame {
 			case 1: 	
 				
 				// get a random pebble
-				pebbleRand = StaticMethods.randInt(0, pebblesInHand.size()-1);
-
+//				pebbleRand = StaticMethods.randInt(0, pebblesInHand.size()-1);
+				pebbleRand = StaticMethods.randInt(0, weightArray.size()-1);
 				
 				// add the chosen pebble to the corresponding white bag
-				pebblesWhite1.add(pebblesInHand.get(pebbleRand));
-						
+//				pebblesWhite1.add(pebblesInHand.get(pebbleRand));
+				
+				Pebbles pebble1 = new Pebbles();
+				try {
+					pebble1.setWeight(weightArray.get(pebbleRand));
+				} catch (IllegalWeightException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// add the chosen pebble to the corresponding white bag
+				pebblesWhite1.add(pebble1);
+				
 				// remove the chosen pebble
-				pebblesInHand.remove(pebbleRand);
+//				pebblesInHand.remove(pebbleRand);
 				
 //				System.out.println(Thread.currentThread().getName()+" has discarded a "+weightArray.get(pebbleRand)+
 //						" to white bag "+bag+". "+Thread.currentThread().getName()+ 
@@ -502,7 +519,7 @@ public class PebbleGame {
 				output1 += Thread.currentThread().getName()+ 
 						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", "");
 				
-				InputOutput.writeToFile(output1,file);
+				InputOutput.writeToFile(output1,StaticMethods.getFile());
 				}
 				catch (Exception e) {
 					System.out.println("Unpredicted error while trying to write information to a file!");
@@ -512,14 +529,25 @@ public class PebbleGame {
 			case 2: 
 				
 				// get a random pebble
-				pebbleRand = StaticMethods.randInt(0, pebblesInHand.size()-1);
+//				pebbleRand = StaticMethods.randInt(0, pebblesInHand.size()-1);
+				pebbleRand = StaticMethods.randInt(0, weightArray.size()-1);
 
 				
 				// add the chosen pebble to the corresponding white bag
-				pebblesWhite2.add(pebblesInHand.get(pebbleRand));
+//				pebblesWhite2.add(pebblesInHand.get(pebbleRand));
 
+				Pebbles pebble2 = new Pebbles();
+				try {
+					pebble2.setWeight(weightArray.get(pebbleRand));
+				} catch (IllegalWeightException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// add the chosen pebble to the corresponding white bag
+				pebblesWhite1.add(pebble2);
+				
 				// remove the chosen pebble
-				pebblesInHand.remove(pebbleRand);
+//				pebblesInHand.remove(pebbleRand);
 				
 //				System.out.println(Thread.currentThread().getName()+" has discarded a "+weightArray.get(pebbleRand)+
 //						" to white bag "+bag+". "+Thread.currentThread().getName()+ 
@@ -528,12 +556,12 @@ public class PebbleGame {
 				String output2 = Thread.currentThread().getName()+" has discarded a "+weightArray.get(pebbleRand)+
 						" to white bag "+bag+". ";
 				
-				// remove the pebble weight from array
+//				// remove the pebble weight from array
 				weightArray.remove(weightArray.get(pebbleRand));	
 				output2 += Thread.currentThread().getName()+ 
 						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", "");
 				
-				InputOutput.writeToFile(output2,file);
+				InputOutput.writeToFile(output2,StaticMethods.getFile());
 				}
 				catch (Exception e) {
 					System.out.println("Unpredicted error while trying to write information to a file!");
@@ -543,14 +571,25 @@ public class PebbleGame {
 			case 3: 
 
 				// get a random pebble
-				pebbleRand = StaticMethods.randInt(0, pebblesInHand.size()-1);
+//				pebbleRand = StaticMethods.randInt(0, pebblesInHand.size()-1);
+				pebbleRand = StaticMethods.randInt(0, weightArray.size()-1);
 
 				
 				// add the chosen pebble to the corresponding white bag
-				pebblesWhite3.add(pebblesInHand.get(pebbleRand));
+//				pebblesWhite3.add(pebblesInHand.get(pebbleRand));
+				
+				Pebbles pebble3 = new Pebbles();
+				try {
+					pebble3.setWeight(weightArray.get(pebbleRand));
+				} catch (IllegalWeightException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				// add the chosen pebble to the corresponding white bag
+				pebblesWhite1.add(pebble3);
  
 				// remove the chosen pebble
-				pebblesInHand.remove(pebbleRand);
+//				pebblesInHand.remove(pebbleRand);
 				
 //				System.out.println(Thread.currentThread().getName()+" has discarded a "+weightArray.get(pebbleRand)+
 //						" to white bag "+bag+". "+Thread.currentThread().getName()+ 
@@ -559,13 +598,13 @@ public class PebbleGame {
 				String output3 = Thread.currentThread().getName()+" has discarded a "+weightArray.get(pebbleRand)+
 						" to white bag "+bag+". ";
 				
-				// remove the pebble weight from array
+//				// remove the pebble weight from array
 				weightArray.remove(weightArray.get(pebbleRand));	
 				
 				output3 += Thread.currentThread().getName()+ 
 						"'s hand is: "+ getArrayList().toString().replace("[", "").replace("]", "");
 				
-				InputOutput.writeToFile(output3,file);
+				InputOutput.writeToFile(output3,StaticMethods.getFile());
 				}
 				catch (Exception e) {
 					System.out.println("Unpredicted error while trying to write information to a file!");
@@ -573,7 +612,6 @@ public class PebbleGame {
 				break;
 		
 			}	
-			lock.unlock();
 		}
 		
 		/**
@@ -582,11 +620,10 @@ public class PebbleGame {
 		 * 
 		 * @param bag
 		 */
-		public void transferPebbles(int bag){
+		public synchronized void transferPebbles(int bag){
 //			in each case transfers all the pebbles from 
 //			the white bag into the black bag
 			
-			lock.lock();
 			switch(bag) {
 			
 			case 1:
@@ -620,7 +657,6 @@ public class PebbleGame {
 		
 			}	
 			
-			lock.unlock();
 		}
 		
 		/**
@@ -635,9 +671,9 @@ public class PebbleGame {
 			
 			int sumOfPebbles = 0;
 			
-			for (int i=0; i<pebblesInHand.size(); i++) {
+			for (int i=0; i<getArrayList().size(); i++) {
 				
-				sumOfPebbles +=pebblesInHand.get(i).getWeight();
+				sumOfPebbles +=getArrayList().get(i);
 				
 			}
 //			System.out.println(Thread.currentThread().getName()+"'s current hand is:\n"+sumOfPebbles);
