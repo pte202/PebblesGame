@@ -3,13 +3,18 @@ package CA1;
 /**
  * InvalidNumberOfPebblesException class.
  * Custom created exception class that will be
- * thrown if the weight of a pebble is less than 0.
+ * thrown if the number of pebbles is not valid.
  * 
  * @author Preslav Enchev and Nikolay Dochev
  *
  */
 public class InvalidNumberOfPebblesException extends Exception {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Constructor for InvalidNumberOfPebblesException.
 	 * 

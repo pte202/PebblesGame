@@ -25,7 +25,7 @@ public class InputOutput
 	 * getFileDir method.
 	 * Receives user input and returns the input directory
 	 * 
-	 * @pre directory is valid and it exists
+	 * @precondition directory is valid and it exists
 	 * @return String fileDir
 	 * @throws FileNotFoundException 
 	 */
@@ -44,8 +44,7 @@ public class InputOutput
     		return fileDir;
     	else {
 			throw new FileNotFoundException();
-		}
-			
+		}			
     }
 		
     /**
@@ -63,6 +62,7 @@ public class InputOutput
 		if(nextLine.equalsIgnoreCase("X"))
 			System.exit(0);
 		int numberOfPlayers = Integer.parseInt(nextLine);
+		
 		// close scanner
 		//keyboardInput.close();
 		
@@ -75,18 +75,20 @@ public class InputOutput
      * readFileAndFillArray method.
      * Receives a file and returns an ArrayList
      * filled with the contents of the file.
-     * @pre The file has to exist. 
-     * @pre All values should be positive.
-     * @post
-     *	
      * 
-     * @param String fileDir    
-     * @return ArrayList<Integer> bagContents
+     * @precondition The file has to exist. 
+     * @precondition All values should be positive.
+     * @postcondition Array filled with pebble weights
+     * 
+     * @param String fileDir                    file containing the pebbles' weights 
+     * @param ArrayList<Pebbles> bagContentsPebble empty array representing one of the bags 
+     * @return ArrayList<Integer> bagContents      the filled array representing one of the bags
      * @throws IllegalWeightException 
      * @throws FileNotFoundException 
      * 
      */
-    public static ArrayList<Pebbles> readFileAndFillArray(String fileDir, ArrayList<Pebbles> bagContentsPebble) throws IllegalWeightException, FileNotFoundException {
+    public static ArrayList<Pebbles> readFileAndFillArray(String fileDir, ArrayList<Pebbles> bagContentsPebble) 
+    		throws IllegalWeightException, FileNotFoundException {
 
     	//Get scanner instance
         Scanner scanner = new Scanner(new FileReader(fileDir));
@@ -113,13 +115,10 @@ public class InputOutput
 			}
         }
         
-        //System.out.println(bagContents.toString());
-        
         //Do not forget to close the scanner 
         scanner.close();
         
         return bagContentsPebble; 
-        //return null;
     }
     
     /**
@@ -128,10 +127,9 @@ public class InputOutput
      * Checks if the number of players is valid.
      * Does not return anything
      * 
-     * @param numberOfPlayers
+     * @param numberOfPlayers       the number of players
      * @throws IllegalNumberOfPlayersException
-     */
-    
+     */    
     public static void isValidNumberOfPlayers(int numberOfPlayers) throws IllegalNumberOfPlayersException {
     	
     	if (numberOfPlayers <= 0) 
@@ -147,8 +145,8 @@ public class InputOutput
      * the game.
      * Does not return anything.
      * 
-     * @param numberOfPlayers
-     * @param bagContentsPebble
+     * @param numberOfPlayers            the number of players
+     * @param bagContentsPebble          arrayList containing all the pebbles
      * @throws InvalidNumberOfPebblesException
      */
     public static void isValidPlayerToWeightRation(int numberOfPlayers, ArrayList<Pebbles> bagContentsPebble) throws InvalidNumberOfPebblesException {
@@ -162,7 +160,10 @@ public class InputOutput
      * createFile method.
      * Creates a file in the program directory.
      * 
-     * @param filename;
+     * @preconditions a valid file name
+     * @postconditions a valid file
+     * 
+     * @param filename       the name of the file
      * @throws UnsupportedEncodingException 
      * @throws FileNotFoundException 
      * 
@@ -179,9 +180,10 @@ public class InputOutput
      * false if the operation is successful or
      * not successful, respectively.
      * 
-     * @param line
-     * @param fileName
-     * @return boolean
+     * @param line      line to be written
+     * @param fileName  name of the file
+     * @return boolean  true if operations is successful,
+     * 					false otherwise
      *
      */
     public static boolean writeToFile(String line, String fileName) {
@@ -201,9 +203,12 @@ public class InputOutput
     }
     
     /**
+     * Method checks if a file exists 
+     * and returns true or false depending
+     * on the check.
      * 
-     * @param file
-     * @return
+     * @param file     name of a file
+     * @return boolean variable
      */
     public static boolean checkFileExistance(String file) {
     	
@@ -215,6 +220,5 @@ public class InputOutput
     	else {
     		return false;
     	}
-    	
     }
 }
