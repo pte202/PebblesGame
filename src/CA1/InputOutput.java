@@ -16,7 +16,7 @@ import java.util.Scanner;
  * InputOutput class. The class includes different static methods
  * that help with the set up of the game (getFiles, getNumberOfPlayers,
  * readFileAndFillArray, isValidNumberOfPlayers, isValidFile)
- * @author user
+ * @authors Exeter Students
  *
  */
 public class InputOutput

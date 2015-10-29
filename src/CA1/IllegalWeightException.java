@@ -5,7 +5,7 @@ package CA1;
  * Custom created exception class that will be
  * thrown if the weight of a pebble is less than 0.
  * 
- * @author Preslav Enchev and Nikolay Dochev
+ * @authors Exeter Students
  *
  */
 public class IllegalWeightException extends Exception {

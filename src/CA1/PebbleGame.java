@@ -13,7 +13,7 @@ import java.util.Random;
  * run the game correctly. The PlayerActions class that defines the
  * actions of each thread, such as draw a pebble and discard a pebble.
  * 
- * @authors Nikolai Dochev, Preslav Enchev 
+ * @authors Exeter Students
  * @version 1.0 28/10/2015
  *
  */

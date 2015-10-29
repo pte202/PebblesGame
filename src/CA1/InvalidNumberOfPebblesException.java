@@ -5,7 +5,7 @@ package CA1;
  * Custom created exception class that will be
  * thrown if the number of pebbles is not valid.
  * 
- * @author Preslav Enchev and Nikolay Dochev
+ * @authors Exeter Students
  *
  */
 public class InvalidNumberOfPebblesException extends Exception {
